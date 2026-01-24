@@ -4,8 +4,8 @@
   "info": {
     "singularName": "certificate",
     "pluralName": "certificates",
-    "displayName": "certificate",
-    "description": ""
+    "displayName": "Certificate",
+    "description": "User certificates with expiry tracking"
   },
   "options": {
     "draftAndPublish": true
@@ -19,6 +19,33 @@
       "max": 1,
       "min": 1,
       "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "issuedDate": {
+      "type": "date",
+      "required": true
+    },
+    "expiryDate": {
+      "type": "date",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "expiring_soon", "expired"],
+      "default": "active"
+    },
+    "notificationsSent": {
+      "type": "json",
+      "default": []
     }
   }
 }

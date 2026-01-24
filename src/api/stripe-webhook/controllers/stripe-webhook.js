@@ -7,7 +7,22 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 module.exports = {
   handleWebhook: async (ctx, next) => {
-    let event = ctx.request.body;
+    // Verify webhook signature
+    const sig = ctx.request.headers["stripe-signature"];
+    const rawBody = ctx.request.body[Symbol.for("unparsedBody")];
+
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        rawBody,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error("Webhook signature verification failed:", err.message);
+      ctx.response.status = 400;
+      return ctx.send({ error: `Webhook Error: ${err.message}` });
+    }
 
     // Handle the event
     switch (event.type) {
@@ -39,6 +54,35 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
         where: { id: order.id },
         data: { status: "paid" },
       });
+
+      // Enroll user in purchased courses
+      const orderWithUser = await strapi.db.query("api::order.order").findOne({
+        where: { id: order.id },
+        populate: ["user"],
+      });
+
+      if (orderWithUser.user && orderWithUser.products) {
+        for (const product of orderWithUser.products) {
+          try {
+            await strapi.db.query("api::course.course").update({
+              where: { id: product.id },
+              data: {
+                users: {
+                  connect: [orderWithUser.user.id],
+                },
+              },
+            });
+            console.log(
+              `User ${orderWithUser.user.id} enrolled in course ${product.id}`
+            );
+          } catch (enrollError) {
+            console.error(
+              `Error enrolling user in course ${product.id}:`,
+              enrollError
+            );
+          }
+        }
+      }
 
       const session = await stripe.checkout.sessions.retrieve(
         order.stripeSessionToken
