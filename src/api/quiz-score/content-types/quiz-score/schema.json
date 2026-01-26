@@ -5,7 +5,7 @@
     "singularName": "quiz-score",
     "pluralName": "quiz-scores",
     "displayName": "QuizScore",
-    "description": ""
+    "description": "Tracks quiz scores and triggers certificate issuance"
   },
   "options": {
     "draftAndPublish": true
@@ -29,6 +29,23 @@
     },
     "lastname": {
       "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "totalQuestions": {
+      "type": "integer"
+    },
+    "isPassing": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_certificates",
+  "info": {
+    "singularName": "user-certificate",
+    "pluralName": "user-certificates",
+    "displayName": "UserCertificate",
+    "description": "Individual user certificates with expiry tracking"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course"
+    },
+    "quizScore": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::quiz-score.quiz-score"
+    },
+    "issuedDate": {
+      "type": "date",
+      "required": true
+    },
+    "expiryDate": {
+      "type": "date",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "expiring_soon", "expired"],
+      "default": "active"
+    },
+    "notificationsSent": {
+      "type": "json",
+      "default": []
+    }
+  }
+}
