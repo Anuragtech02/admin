@@ -18,9 +18,9 @@
  *   5. Uses original quiz createdAt as issuedDate, +1 year for expiryDate
  */
 
-const STRAPI_URL = process.env.STRAPI_URL || 'https://admin.ryzolve.com';
-const STRAPI_TOKEN = process.env.STRAPI_TOKEN || '';
-const PASS_THRESHOLD = Number(process.env.PASS_THRESHOLD) || 90;
+const STRAPI_URL = process.env.STRAPI_URL || "https://admin.ryzolve.com";
+const STRAPI_TOKEN = process.env.STRAPI_TOKEN || "";
+const PASS_THRESHOLD = Number(process.env.PASS_THRESHOLD) || 70;
 
 if (!STRAPI_TOKEN) {
   console.error("ERROR: STRAPI_TOKEN is required.");
@@ -116,8 +116,12 @@ async function main() {
   // 3. Fetch all users and courses for resolving old scores
   // Note: /api/users (users-permissions plugin) returns flat objects, not wrapped in attributes
   console.log("Fetching users...");
-  const usersRes = await fetch(`${STRAPI_URL}/api/users?pagination[pageSize]=1000`, { headers });
-  if (!usersRes.ok) throw new Error(`Failed to fetch users: ${usersRes.status}`);
+  const usersRes = await fetch(
+    `${STRAPI_URL}/api/users?pagination[pageSize]=1000`,
+    { headers },
+  );
+  if (!usersRes.ok)
+    throw new Error(`Failed to fetch users: ${usersRes.status}`);
   const users = await usersRes.json();
 
   const userByEmail = {};
@@ -169,7 +173,9 @@ async function main() {
       userId = userByUsername[attrs.username];
     }
     if (!userId) {
-      console.log(`  SKIP (no user): username="${attrs.username}" email="${attrs.email}"`);
+      console.log(
+        `  SKIP (no user): username="${attrs.username}" email="${attrs.email}"`,
+      );
       results.skippedNoUser++;
       continue;
     }
