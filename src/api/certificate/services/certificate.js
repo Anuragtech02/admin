@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /**
  * certificate service
  */
 
-const { createCoreService } = require('@strapi/strapi').factories;
+const { createCoreService } = require("@strapi/strapi").factories;
 
-module.exports = createCoreService('api::certificate.certificate');
+module.exports = createCoreService("api::certificate.certificate");

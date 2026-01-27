@@ -4,8 +4,8 @@
   "info": {
     "singularName": "certificate",
     "pluralName": "certificates",
-    "displayName": "certificate",
-    "description": ""
+    "displayName": "Certificate",
+    "description": "Certificate template for course completion"
   },
   "options": {
     "draftAndPublish": true
