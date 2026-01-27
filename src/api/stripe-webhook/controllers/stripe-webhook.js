@@ -186,11 +186,12 @@ async function sendEmail(to, subject, message, products, agency, city) {
           <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
         </div>
         <p style="font-size: 14px; color: #555;">${message}</p>
-
+        ${agency || city ? `
         <p style="font-size: 14px; color: #555;">
-          <strong>Agency:</strong> ${agency} <br />
-          <strong>City:</strong> ${city}
+          ${agency ? `<strong>Agency:</strong> ${agency}<br />` : ''}
+          ${city ? `<strong>City:</strong> ${city}` : ''}
         </p>
+        ` : ''}
 
         <h3 style="color: #333;">Products Ordered</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
@@ -229,7 +230,7 @@ async function sendEmail(to, subject, message, products, agency, city) {
     // Send email to Ryzolve team
     await strapi.plugins["email"].services.email.send({
       to: "pas@ryzolve.com",
-      subject: `New Order from ${email} (${agency})`,
+      subject: `New Order from ${to}${agency ? ` (${agency})` : ''}`,
       html: emailContent, // Reusing the same content to notify Ryzolve team
     });
 
