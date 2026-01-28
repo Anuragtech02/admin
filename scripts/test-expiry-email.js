@@ -62,108 +62,118 @@ function getEmailTemplate(type) {
             : -1),
   );
   const expiryDateStr = expiryDate.toISOString().split("T")[0];
-  const issuedDateStr = issuedDate.toISOString().split("T")[0];
 
-  // 30-day template has a unique design with benefits list
+  // Common email wrapper
+  const wrapEmail = (content, ctaText, ctaColor) => `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
+      </div>
+      ${content}
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: ${ctaColor}; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">${ctaText}</a>
+      </div>
+      <p style="font-size: 14px; color: #555;">Questions? Contact us at <a href="mailto:pas@ryzolve.com" style="color: #FF774B;">pas@ryzolve.com</a>.</p>
+      <p style="font-size: 14px; color: #555;">Best regards,<br />The Ryzolve Team</p>
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <p style="font-size: 12px; color: #999;">&copy; 2024 Ryzolve Inc. All rights reserved.</p>
+        <p style="font-size: 12px; color: #999;">9309 Highway 75 S Ste 102, New Waverly, TX 77358</p>
+      </div>
+    </div>
+  `;
+
+  // Subject lines
+  const subjects = {
+    "30-day": `30-day reminder: Renew your ${courseName} certificate`,
+    "7-day": `Urgent: Your ${courseName} certificate expires in 7 days`,
+    "1-day": `Final notice: Your ${courseName} certificate expires tomorrow`,
+    "expired": `Your ${courseName} certificate has expired`,
+  };
+
+  // 30-day template - friendly reminder with benefits
   if (type === "30-day") {
     return {
-      subject: `[TEST] 30-day reminder: Renew your ${courseName} certificate`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
-          </div>
-          <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
-          <p style="font-size: 14px; color: #555;">Just a quick reminder—your <strong>${courseName}</strong> certificate will expire on <strong>${expiryDateStr}</strong>.</p>
-          <p style="font-size: 14px; color: #555;">Renewing early helps you stay compliant and keeps your training history continuous inside Ryzolve (useful for audits and documentation).</p>
-          <p style="font-size: 14px; color: #555; font-weight: bold;">Renewing with Ryzolve means</p>
-          <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-            <li style="margin-bottom: 8px;">Your training record stays in one place</li>
-            <li style="margin-bottom: 8px;">Fast re-enrollment and completion</li>
-            <li style="margin-bottom: 8px;">Updated certificate available immediately after completion</li>
-            <li style="margin-bottom: 8px;">Reminders to prevent future lapses</li>
-          </ul>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: #FF774B; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Renew now (recommended)</a>
-          </div>
-          <p style="font-size: 14px; color: #555;">Questions? Contact us at <a href="mailto:pas@ryzolve.com" style="color: #FF774B;">pas@ryzolve.com</a>.</p>
-          <p style="font-size: 14px; color: #555;">Best regards,<br />The Ryzolve Team</p>
-          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-            <p style="font-size: 12px; color: #999;">&copy; 2024 Ryzolve Inc. All rights reserved.</p>
-            <p style="font-size: 12px; color: #999;">9309 Highway 75 S Ste 102, New Waverly, TX 77358</p>
-          </div>
-        </div>
-      `,
+      subject: `[TEST] ${subjects[type]}`,
+      html: wrapEmail(`
+        <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
+        <p style="font-size: 14px; color: #555;">Just a quick reminder—your <strong>${courseName}</strong> certificate will expire on <strong>${expiryDateStr}</strong>.</p>
+        <p style="font-size: 14px; color: #555;">Renewing early helps you stay compliant and keeps your training history continuous inside Ryzolve (useful for audits and documentation).</p>
+        <p style="font-size: 14px; color: #555; font-weight: bold;">Renewing with Ryzolve means</p>
+        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+          <li style="margin-bottom: 8px;">Your training record stays in one place</li>
+          <li style="margin-bottom: 8px;">Fast re-enrollment and completion</li>
+          <li style="margin-bottom: 8px;">Updated certificate available immediately after completion</li>
+          <li style="margin-bottom: 8px;">Reminders to prevent future lapses</li>
+        </ul>
+      `, "Renew now (recommended)", "#FF774B"),
     };
   }
 
-  const templates = {
-    "7-day": {
-      subject: "Certificate Expires in 7 Days - Action Required",
-      heading: "Urgent: Certificate Expiring Soon",
-      message: `Your certificate for <strong>${courseName}</strong> will expire in <strong>7 days</strong>. Don't lose access to your certification!`,
-      ctaText: "Renew Now - Don't Lose Access!",
-      ctaColor: "#FF5722",
-      urgency:
-        '<p style="font-size: 14px; color: #d32f2f; font-weight: bold;">Act now to avoid losing your certification and course access.</p>',
-    },
-    "1-day": {
-      subject: "Final Notice: Certificate Expires Tomorrow!",
-      heading: "Final Warning: Certificate Expires Tomorrow",
-      message: `Your certificate for <strong>${courseName}</strong> expires <strong>tomorrow</strong>! After expiry, you will lose access to the course and must re-enroll.`,
-      ctaText: "Renew Today",
-      ctaColor: "#d32f2f",
-      urgency:
-        '<p style="font-size: 14px; color: #d32f2f; font-weight: bold;">This is your last chance to renew before losing access!</p>',
-    },
-    expired: {
-      subject: "Your Certificate Has Expired - Re-enroll Now",
-      heading: "Certificate Expired",
-      message: `Your certificate for <strong>${courseName}</strong> has expired. You no longer have access to this course. To regain access and renew your certification, please re-enroll.`,
-      ctaText: "Re-enroll Now",
-      ctaColor: "#d32f2f",
-      urgency: "",
-    },
-  };
-
-  const template = templates[type];
-
-  return {
-    subject: `[TEST] ${template.subject}`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
-        </div>
-        <h2 style="color: #333; text-align: center;">${template.heading}</h2>
+  // 7-day template - urgent, emphasize deadline
+  if (type === "7-day") {
+    return {
+      subject: `[TEST] ${subjects[type]}`,
+      html: wrapEmail(`
         <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
-        <p style="font-size: 14px; color: #555;">${template.message}</p>
-        ${template.urgency}
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Course</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${courseName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Issued Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${issuedDateStr}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Expiry Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${expiryDateStr}</td>
-          </tr>
-        </table>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: ${template.ctaColor}; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">${template.ctaText}</a>
-        </div>
-        <p style="font-size: 14px; color: #555;">If you have any questions, please contact our support team.</p>
-        <p style="font-size: 14px; color: #555;">Best regards,<br />The Ryzolve Team</p>
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-          <p style="font-size: 12px; color: #999;">&copy; 2024 Ryzolve Inc. All rights reserved.</p>
-          <p style="font-size: 12px; color: #999;">9309 Highway 75 S Ste 102, New Waverly, TX 77358</p>
-        </div>
-      </div>
-    `,
+        <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expires on <strong>${expiryDateStr}</strong>—that's just <strong>7 days away</strong>.</p>
+        <p style="font-size: 14px; color: #555;">Once expired, you'll lose access to your course materials and will need to re-enroll to maintain your certification.</p>
+        <p style="font-size: 14px; color: #555; font-weight: bold;">Renew now to avoid:</p>
+        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+          <li style="margin-bottom: 8px;">Gaps in your training record</li>
+          <li style="margin-bottom: 8px;">Compliance issues during audits</li>
+          <li style="margin-bottom: 8px;">Losing access to course materials</li>
+          <li style="margin-bottom: 8px;">Having to start the enrollment process over</li>
+        </ul>
+        <p style="font-size: 14px; color: #d32f2f; font-weight: bold;">Don't wait—renew today and keep your certification active.</p>
+      `, "Renew now — 7 days left", "#FF5722"),
+    };
+  }
+
+  // 1-day template - final warning, very urgent
+  if (type === "1-day") {
+    return {
+      subject: `[TEST] ${subjects[type]}`,
+      html: wrapEmail(`
+        <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
+        <p style="font-size: 14px; color: #d32f2f; font-weight: bold; font-size: 16px;">Your <strong>${courseName}</strong> certificate expires tomorrow (${expiryDateStr}).</p>
+        <p style="font-size: 14px; color: #555;">This is your last chance to renew before losing access. After tomorrow:</p>
+        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+          <li style="margin-bottom: 8px;">Your certificate will be marked as expired</li>
+          <li style="margin-bottom: 8px;">You'll lose access to your course</li>
+          <li style="margin-bottom: 8px;">Your training record will show a gap</li>
+          <li style="margin-bottom: 8px;">You'll need to re-enroll to restore access</li>
+        </ul>
+        <p style="font-size: 14px; color: #555;">It only takes a few minutes to renew—don't let your hard work expire.</p>
+      `, "Renew now — expires tomorrow", "#d32f2f"),
+    };
+  }
+
+  // Expired template - certificate has expired
+  if (type === "expired") {
+    return {
+      subject: `[TEST] ${subjects[type]}`,
+      html: wrapEmail(`
+        <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
+        <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expired on <strong>${expiryDateStr}</strong>.</p>
+        <p style="font-size: 14px; color: #555;">As a result, your access to the course has been removed and your certification is no longer active.</p>
+        <p style="font-size: 14px; color: #555; font-weight: bold;">To restore your certification:</p>
+        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+          <li style="margin-bottom: 8px;">Re-enroll in the course through Ryzolve</li>
+          <li style="margin-bottom: 8px;">Complete the training requirements</li>
+          <li style="margin-bottom: 8px;">Receive a new certificate valid for another year</li>
+        </ul>
+        <p style="font-size: 14px; color: #555;">We've kept your training history on file, so re-enrolling is quick and easy.</p>
+      `, "Re-enroll now", "#d32f2f"),
+    };
+  }
+
+  // Fallback
+  return {
+    subject: `[TEST] Certificate update for ${courseName}`,
+    html: wrapEmail(`
+      <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
+      <p style="font-size: 14px; color: #555;">This is a notification about your <strong>${courseName}</strong> certificate.</p>
+    `, "View certificate", "#FF774B"),
   };
 }
 
