@@ -61,16 +61,43 @@ function getEmailTemplate(type) {
             ? 1
             : -1),
   );
+  const expiryDateStr = expiryDate.toISOString().split("T")[0];
+  const issuedDateStr = issuedDate.toISOString().split("T")[0];
+
+  // 30-day template has a unique design with benefits list
+  if (type === "30-day") {
+    return {
+      subject: `[TEST] 30-day reminder: Renew your ${courseName} certificate`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
+          </div>
+          <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
+          <p style="font-size: 14px; color: #555;">Just a quick reminder—your <strong>${courseName}</strong> certificate will expire on <strong>${expiryDateStr}</strong>.</p>
+          <p style="font-size: 14px; color: #555;">Renewing early helps you stay compliant and keeps your training history continuous inside Ryzolve (useful for audits and documentation).</p>
+          <p style="font-size: 14px; color: #555; font-weight: bold;">Renewing with Ryzolve means</p>
+          <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+            <li style="margin-bottom: 8px;">Your training record stays in one place</li>
+            <li style="margin-bottom: 8px;">Fast re-enrollment and completion</li>
+            <li style="margin-bottom: 8px;">Updated certificate available immediately after completion</li>
+            <li style="margin-bottom: 8px;">Reminders to prevent future lapses</li>
+          </ul>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: #FF774B; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Renew now (recommended)</a>
+          </div>
+          <p style="font-size: 14px; color: #555;">Questions? Contact us at <a href="mailto:pas@ryzolve.com" style="color: #FF774B;">pas@ryzolve.com</a>.</p>
+          <p style="font-size: 14px; color: #555;">Best regards,<br />The Ryzolve Team</p>
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="font-size: 12px; color: #999;">&copy; 2024 Ryzolve Inc. All rights reserved.</p>
+            <p style="font-size: 12px; color: #999;">9309 Highway 75 S Ste 102, New Waverly, TX 77358</p>
+          </div>
+        </div>
+      `,
+    };
+  }
 
   const templates = {
-    "30-day": {
-      subject: "Certificate Expiring Soon - 30 Days Remaining",
-      heading: "Certificate Expiry Reminder",
-      message: `Your certificate for <strong>${courseName}</strong> will expire in <strong>30 days</strong>.`,
-      ctaText: "Renew Now",
-      ctaColor: "#FF774B",
-      urgency: "",
-    },
     "7-day": {
       subject: "Certificate Expires in 7 Days - Action Required",
       heading: "Urgent: Certificate Expiring Soon",
@@ -119,11 +146,11 @@ function getEmailTemplate(type) {
           </tr>
           <tr>
             <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Issued Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${issuedDate.toISOString().split("T")[0]}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${issuedDateStr}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Expiry Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${expiryDate.toISOString().split("T")[0]}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${expiryDateStr}</td>
           </tr>
         </table>
         <div style="text-align: center; margin: 30px 0;">
