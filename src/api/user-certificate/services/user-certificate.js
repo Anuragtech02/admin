@@ -317,6 +317,65 @@ module.exports = createCoreService(
         }
       }
 
+      // Process certificates already marked as expired but never notified
+      // (catches migrated/manually-updated certificates that bypassed normal flow)
+      const unnotifiedExpiredCerts = await strapi.db
+        .query("api::user-certificate.user-certificate")
+        .findMany({
+          where: {
+            status: "expired",
+          },
+          populate: ["user", "course"],
+        });
+
+      // Filter to only those missing "expired" in notificationsSent
+      const needsNotification = unnotifiedExpiredCerts.filter(cert => {
+        const sent = cert.notificationsSent || [];
+        return !sent.includes("expired");
+      });
+
+      console.log(`Found ${needsNotification.length} expired certificates that were never notified`);
+
+      for (const userCert of needsNotification) {
+        try {
+          if (userCert.user && userCert.course) {
+            // Send expired notification to user
+            const userEmail = getEmailTemplate("expired", userCert);
+            await strapi.plugins["email"].services.email.send({
+              to: userCert.user.email,
+              subject: userEmail.subject,
+              html: userEmail.html,
+            });
+
+            // Send expired notification to admin
+            const adminEmail = getAdminEmailTemplate("expired", userCert);
+            await strapi.plugins["email"].services.email.send({
+              to: "pas@ryzolve.com",
+              subject: adminEmail.subject,
+              html: adminEmail.html,
+            });
+
+            // Mark notification as sent
+            await strapi.db.query("api::user-certificate.user-certificate").update({
+              where: { id: userCert.id },
+              data: {
+                notificationsSent: [
+                  ...(userCert.notificationsSent || []),
+                  "expired",
+                ],
+              },
+            });
+
+            console.log(`Sent expired notification for previously-unnotified certificate ${userCert.id} (user: ${userCert.user.email})`);
+          }
+        } catch (error) {
+          console.error(
+            `Error sending notification for unnotified expired certificate ${userCert.id}:`,
+            error
+          );
+        }
+      }
+
       console.log("User certificate expiry check completed");
     },
   })
