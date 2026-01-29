@@ -8,8 +8,8 @@ module.exports = ({ env }) => ({
   cron: {
     enabled: true,
     tasks: {
-      // Run daily at 9:15 AM Central (14:15 UTC)
-      "15 14 * * *": async ({ strapi }) => {
+      // Run daily at 9:15 AM CST (15:15 UTC)
+      "15 15 * * *": async ({ strapi }) => {
         console.log("Starting daily user certificate expiry check...");
         await strapi
           .service("api::user-certificate.user-certificate")
