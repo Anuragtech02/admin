@@ -193,7 +193,7 @@ function getSubject(type, courseName) {
     '30-day': `30-day reminder: Renew your ${courseName} certificate`,
     '7-day': `Urgent: Your ${courseName} certificate expires in 7 days`,
     '1-day': `Final notice: Your ${courseName} certificate expires tomorrow`,
-    'expired': `Your ${courseName} certificate has expired`,
+    'expired': `Renew your certificate to stay compliant`,
   };
   return `[TEST] ${subjects[type]}`;
 }
@@ -277,15 +277,16 @@ function getEmailHtml(type, cert, user) {
     return wrapEmail(`
       <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
       <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expired on <strong>${expiryDate}</strong>.</p>
-      <p style="font-size: 14px; color: #555;">As a result, your access to the course has been removed and your certification is no longer active.</p>
-      <p style="font-size: 14px; color: #555; font-weight: bold;">To restore your certification:</p>
+      <p style="font-size: 14px; color: #555;">To stay compliant and keep your records audit-ready, renew now. Once completed, your updated certificate is available immediately in Ryzolve.</p>
+      <p style="font-size: 14px; color: #555; font-weight: bold;">Why renew with Ryzolve</p>
       <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-        <li style="margin-bottom: 8px;">Re-enroll in the course through Ryzolve</li>
-        <li style="margin-bottom: 8px;">Complete the training requirements</li>
-        <li style="margin-bottom: 8px;">Receive a new certificate valid for another year</li>
+        <li style="margin-bottom: 8px;">Instant certificate download after completion</li>
+        <li style="margin-bottom: 8px;">Training history stored in one place for audits</li>
+        <li style="margin-bottom: 8px;">Automated reminders before expiry</li>
+        <li style="margin-bottom: 8px;">Support available if you need help</li>
       </ul>
-      <p style="font-size: 14px; color: #555;">We've kept your training history on file, so re-enrolling is quick and easy.</p>
-    `, 'Re-enroll now', '#d32f2f');
+      <p style="font-size: 14px; color: #555;">If you have questions, contact our support team anytime.</p>
+    `, 'Renew Certificate', '#FF774B');
   }
 
   // Fallback

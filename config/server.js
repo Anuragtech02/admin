@@ -37,7 +37,7 @@ module.exports = ({ env }) => ({
         console.log(`[TEST CRON] Found expired cert ID=${cert.id}, course=${cert.course?.title}, expiry=${cert.expiryDate}`);
 
         try {
-          // Build the REAL expired email template (same as service)
+          // Build the REAL expired email template
           const renewalUrl = `https://training.ryzolve.com/renewal?course=${cert.course?.id}`;
           const courseName = cert.course?.title || "your course";
           const userName = cert.user?.firstname || cert.user?.username || "Student";
@@ -50,18 +50,18 @@ module.exports = ({ env }) => ({
               </div>
               <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
               <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expired on <strong>${expiryDate}</strong>.</p>
-              <p style="font-size: 14px; color: #555;">As a result, your access to the course has been removed and your certification is no longer active.</p>
-              <p style="font-size: 14px; color: #555; font-weight: bold;">To restore your certification:</p>
+              <p style="font-size: 14px; color: #555;">To stay compliant and keep your records audit-ready, renew now. Once completed, your updated certificate is available immediately in Ryzolve.</p>
+              <p style="font-size: 14px; color: #555; font-weight: bold;">Why renew with Ryzolve</p>
               <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-                <li style="margin-bottom: 8px;">Re-enroll in the course through Ryzolve</li>
-                <li style="margin-bottom: 8px;">Complete the training requirements</li>
-                <li style="margin-bottom: 8px;">Receive a new certificate valid for another year</li>
+                <li style="margin-bottom: 8px;">Instant certificate download after completion</li>
+                <li style="margin-bottom: 8px;">Training history stored in one place for audits</li>
+                <li style="margin-bottom: 8px;">Automated reminders before expiry</li>
+                <li style="margin-bottom: 8px;">Support available if you need help</li>
               </ul>
-              <p style="font-size: 14px; color: #555;">We've kept your training history on file, so re-enrolling is quick and easy.</p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: #d32f2f; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Re-enroll now</a>
+                <a href="${renewalUrl}" style="display: inline-block; padding: 15px 30px; background-color: #FF774B; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Renew Certificate</a>
               </div>
-              <p style="font-size: 14px; color: #555;">Questions? Contact us at <a href="mailto:pas@ryzolve.com" style="color: #FF774B;">pas@ryzolve.com</a>.</p>
+              <p style="font-size: 14px; color: #555;">If you have questions, contact our support team anytime.</p>
               <p style="font-size: 14px; color: #555;">Best regards,<br />The Ryzolve Team</p>
               <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
                 <p style="font-size: 12px; color: #999;">© 2024 Ryzolve Inc. All rights reserved.</p>
@@ -72,11 +72,11 @@ module.exports = ({ env }) => ({
 
           await strapi.plugins["email"].services.email.send({
             to: "pas@ryzolve.com",
-            subject: `Your ${courseName} certificate has expired`,
+            subject: `Renew your certificate to stay compliant`,
             html: html,
           });
 
-          console.log("[TEST CRON] Expired email sent successfully to pas@ryzolve.com using REAL template!");
+          console.log("[TEST CRON] Expired email sent successfully to pas@ryzolve.com!");
         } catch (error) {
           console.error("[TEST CRON] Failed to send email:", error.message);
         }
