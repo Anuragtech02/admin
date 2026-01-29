@@ -52,62 +52,47 @@ function getEmailTemplate(type, userCert) {
     };
   }
 
-  // 7-day template - urgent, emphasize deadline
+  // 7-day template - don't let it lapse
   if (type === "7-day") {
     return {
-      subject: `Urgent: Your ${courseName} certificate expires in 7 days`,
+      subject: `Don't let your certificate lapse — renew by ${expiryDate}`,
       html: wrapEmail(`
         <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
-        <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expires on <strong>${expiryDate}</strong>—that's just <strong>7 days away</strong>.</p>
-        <p style="font-size: 14px; color: #555;">Once expired, you'll lose access to your course materials and will need to re-enroll to maintain your certification.</p>
-        <p style="font-size: 14px; color: #555; font-weight: bold;">Renew now to avoid:</p>
-        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-          <li style="margin-bottom: 8px;">Gaps in your training record</li>
-          <li style="margin-bottom: 8px;">Compliance issues during audits</li>
-          <li style="margin-bottom: 8px;">Losing access to course materials</li>
-          <li style="margin-bottom: 8px;">Having to start the enrollment process over</li>
-        </ul>
-        <p style="font-size: 14px; color: #d32f2f; font-weight: bold;">Don't wait—renew today and keep your certification active.</p>
-      `, "Renew now — 7 days left", "#FF5722"),
+        <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expires in 7 days on <strong>${expiryDate}</strong>.</p>
+        <p style="font-size: 14px; color: #555;">To avoid any lapses, please renew now. This keeps your training status current and your documentation ready when needed.</p>
+      `, "Renew certificate", "#FF774B"),
     };
   }
 
-  // 1-day template - final warning, very urgent
+  // 1-day template - final reminder
   if (type === "1-day") {
     return {
-      subject: `Final notice: Your ${courseName} certificate expires tomorrow`,
+      subject: `Final reminder: Certificate expires tomorrow (${expiryDate})`,
       html: wrapEmail(`
         <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
-        <p style="font-size: 14px; color: #d32f2f; font-weight: bold; font-size: 16px;">Your <strong>${courseName}</strong> certificate expires tomorrow (${expiryDate}).</p>
-        <p style="font-size: 14px; color: #555;">This is your last chance to renew before losing access. After tomorrow:</p>
-        <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-          <li style="margin-bottom: 8px;">Your certificate will be marked as expired</li>
-          <li style="margin-bottom: 8px;">You'll lose access to your course</li>
-          <li style="margin-bottom: 8px;">Your training record will show a gap</li>
-          <li style="margin-bottom: 8px;">You'll need to re-enroll to restore access</li>
-        </ul>
-        <p style="font-size: 14px; color: #555;">It only takes a few minutes to renew—don't let your hard work expire.</p>
-      `, "Renew now — expires tomorrow", "#d32f2f"),
+        <p style="font-size: 14px; color: #555;">This is a final reminder—your <strong>${courseName}</strong> certificate expires tomorrow (<strong>${expiryDate}</strong>).</p>
+        <p style="font-size: 14px; color: #555;">Renew today to avoid interruption and keep your certificate active in Ryzolve.</p>
+        <p style="font-size: 14px; color: #555;">If you run into any issues, contact <a href="mailto:pas@ryzolve.com" style="color: #FF774B;">pas@ryzolve.com</a>.</p>
+      `, "Renew today", "#FF774B"),
     };
   }
 
   // Expired template - certificate has expired
   if (type === "expired") {
     return {
-      subject: `Renew your certificate to stay compliant`,
+      subject: `Your certificate expired on ${expiryDate} — renew now`,
       html: wrapEmail(`
         <p style="font-size: 14px; color: #555;">Hi ${userName},</p>
         <p style="font-size: 14px; color: #555;">Your <strong>${courseName}</strong> certificate expired on <strong>${expiryDate}</strong>.</p>
-        <p style="font-size: 14px; color: #555;">To stay compliant and keep your records audit-ready, renew now. Once completed, your updated certificate is available immediately in Ryzolve.</p>
+        <p style="font-size: 14px; color: #555;">Renew now to restore access and keep your training record current for compliance and audits. After completion, your updated certificate is available immediately in Ryzolve.</p>
         <p style="font-size: 14px; color: #555; font-weight: bold;">Why renew with Ryzolve</p>
         <ul style="font-size: 14px; color: #555; padding-left: 20px;">
           <li style="margin-bottom: 8px;">Instant certificate download after completion</li>
-          <li style="margin-bottom: 8px;">Training history stored in one place for audits</li>
-          <li style="margin-bottom: 8px;">Automated reminders before expiry</li>
+          <li style="margin-bottom: 8px;">Training history stored in one place</li>
+          <li style="margin-bottom: 8px;">Automated reminders so you don't lapse again</li>
           <li style="margin-bottom: 8px;">Support available if you need help</li>
         </ul>
-        <p style="font-size: 14px; color: #555;">If you have questions, contact our support team anytime.</p>
-      `, "Renew Certificate", "#FF774B"),
+      `, "Renew & download certificate", "#FF774B"),
     };
   }
 
