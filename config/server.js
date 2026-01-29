@@ -8,9 +8,9 @@ module.exports = ({ env }) => ({
   cron: {
     enabled: true,
     tasks: {
-      // TEST CRON - runs at 14:00 UTC to test email for pas@ryzolve.com
+      // TEST CRON - runs at 14:05 UTC to test email for pas@ryzolve.com
       // REMOVE THIS AFTER TESTING
-      "0 14 * * *": async ({ strapi }) => {
+      "5 14 * * *": async ({ strapi }) => {
         console.log("[TEST CRON] Starting test email for pas@ryzolve.com...");
 
         // Find user by email
