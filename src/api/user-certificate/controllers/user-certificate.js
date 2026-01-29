@@ -114,41 +114,73 @@ module.exports = createCoreController('api::user-certificate.user-certificate', 
   },
 
   /**
-   * Manually trigger the certificate expiry check.
-   * POST /api/user-certificates/check-expiring
+   * Log all expiring and expired certificates.
+   * GET /api/user-certificates/check-expiring
    *
-   * Use this endpoint with an external cron service (like cron-job.org)
-   * if the hosting platform doesn't support Strapi's built-in cron.
-   *
-   * Optionally pass ?secret=YOUR_SECRET to add basic auth protection.
+   * Use with an external cron service (e.g., cron-job.org) to poll every 5 mins.
+   * This keeps the container alive and logs certificate status.
    */
   async checkExpiring(ctx) {
-    const { secret } = ctx.query;
-    const expectedSecret = process.env.CRON_SECRET;
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
 
-    // Basic auth check if CRON_SECRET is configured
-    if (expectedSecret && secret !== expectedSecret) {
-      ctx.response.status = 401;
-      return { error: 'Unauthorized. Provide ?secret=YOUR_CRON_SECRET' };
+    // Calculate target dates
+    const dates = {
+      '30-day': new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      '7-day': new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      '1-day': new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    };
+
+    const results = {
+      timestamp: today.toISOString(),
+      today: todayStr,
+      expiring: {},
+      expired: [],
+    };
+
+    // Check each expiry window
+    for (const [label, dateStr] of Object.entries(dates)) {
+      const certs = await strapi.db.query('api::user-certificate.user-certificate').findMany({
+        where: {
+          expiryDate: dateStr,
+          status: { $ne: 'expired' },
+        },
+        populate: ['user', 'course'],
+      });
+
+      results.expiring[label] = certs.map(c => ({
+        id: c.id,
+        user: c.user?.email || c.user?.username || 'unknown',
+        course: c.course?.title || 'unknown',
+        expiryDate: c.expiryDate,
+        status: c.status,
+        notificationsSent: c.notificationsSent || [],
+      }));
+
+      console.log(`[${label}] Found ${certs.length} certificates expiring on ${dateStr}`);
     }
 
-    console.log('Manual trigger: Starting certificate expiry check...');
+    // Check expired (not yet marked as expired)
+    const expiredCerts = await strapi.db.query('api::user-certificate.user-certificate').findMany({
+      where: {
+        expiryDate: { $lt: todayStr },
+        status: { $ne: 'expired' },
+      },
+      populate: ['user', 'course'],
+    });
 
-    try {
-      await strapi
-        .service('api::user-certificate.user-certificate')
-        .checkExpiringCertificates();
+    results.expired = expiredCerts.map(c => ({
+      id: c.id,
+      user: c.user?.email || c.user?.username || 'unknown',
+      course: c.course?.title || 'unknown',
+      expiryDate: c.expiryDate,
+      status: c.status,
+    }));
 
-      return {
-        success: true,
-        message: 'Certificate expiry check completed. Check server logs for details.',
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('Error in manual certificate check:', error);
-      ctx.response.status = 500;
-      return { error: error.message };
-    }
+    console.log(`[expired] Found ${expiredCerts.length} certificates past expiry date`);
+    console.log(`[check-expiring] Summary: 30-day=${results.expiring['30-day'].length}, 7-day=${results.expiring['7-day'].length}, 1-day=${results.expiring['1-day'].length}, expired=${results.expired.length}`);
+
+    return results;
   },
 }));
 
