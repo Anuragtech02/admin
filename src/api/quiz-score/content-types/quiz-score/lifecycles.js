@@ -78,6 +78,7 @@ module.exports = {
     }
 
     // Calculate dates - use quiz score createdAt as issue date
+    // (for new entries, createdAt and updatedAt are identical anyway)
     const issuedDate = new Date(result.createdAt).toISOString().split("T")[0];
     const expiryDate = new Date(result.createdAt);
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);

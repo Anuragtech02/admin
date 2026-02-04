@@ -214,8 +214,9 @@ async function main() {
     }
 
     try {
-      const issuedDate = new Date(attrs.createdAt);
-      const expiryDate = new Date(attrs.createdAt);
+      // Use updatedAt as issue date (matches original system behavior)
+      const issuedDate = new Date(attrs.updatedAt);
+      const expiryDate = new Date(attrs.updatedAt);
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
       const now = new Date();
