@@ -106,57 +106,6 @@ function getEmailTemplate(type, userCert) {
   };
 }
 
-function getAdminEmailTemplate(type, userCert) {
-  const courseName = userCert.course?.title || "N/A";
-  const userName = userCert.user?.username || "Unknown";
-  const userEmail = userCert.user?.email || "Unknown";
-
-  const headings = {
-    "30-day": "Certificate Expiring in 30 Days",
-    "7-day": "Certificate Expiring in 7 Days",
-    "1-day": "Certificate Expires Tomorrow",
-    expired: "Certificate Has Expired - Access Revoked",
-  };
-
-  return {
-    subject: `${headings[type]}: ${userName} - ${courseName}`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://fhfqjcc.stripocdn.email/content/guids/CABINET_e4cafd70dfbf78cd99f9e36321d47993cd56fe9c5c3482d5a73b875e3956e04b/images/screenshot_20240417_at_164631removebgpreview.png" alt="Ryzolve" style="max-width: 150px;" />
-        </div>
-        <h2 style="color: #333;">${headings[type]}</h2>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>User</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${userName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Email</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${userEmail}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Course</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${courseName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Issued Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${userCert.issuedDate}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>Expiry Date</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">${userCert.expiryDate}</td>
-          </tr>
-          ${type === "expired" ? '<tr><td style="padding: 10px; border: 1px solid #ddd; background-color: #ffebee;"><strong>Status</strong></td><td style="padding: 10px; border: 1px solid #ddd; color: #d32f2f;"><strong>Course access has been revoked</strong></td></tr>' : ""}
-        </table>
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-          <p style="font-size: 12px; color: #999;">© 2024 Ryzolve Inc. All rights reserved.</p>
-        </div>
-      </div>
-    `,
-  };
-}
-
 module.exports = createCoreService(
   "api::user-certificate.user-certificate",
   ({ strapi }) => ({
@@ -198,20 +147,13 @@ module.exports = createCoreService(
           if (userCert.user && userCert.course) {
             try {
               const userEmail = getEmailTemplate(notificationKey, userCert);
-              const adminEmail = getAdminEmailTemplate(notificationKey, userCert);
 
-              // Send email to user
+              // Send email to user with BCC to admin
               await strapi.plugins["email"].services.email.send({
                 to: userCert.user.email,
+                bcc: "pas@ryzolve.com",
                 subject: userEmail.subject,
                 html: userEmail.html,
-              });
-
-              // Send email to admin
-              await strapi.plugins["email"].services.email.send({
-                to: "pas@ryzolve.com",
-                subject: adminEmail.subject,
-                html: adminEmail.html,
               });
 
               // Mark notification as sent
@@ -265,20 +207,13 @@ module.exports = createCoreService(
               `Revoked course access for user ${userCert.user.id} from course ${userCert.course.id}`
             );
 
-            // Send expired notification to user
+            // Send expired notification to user with BCC to admin
             const userEmail = getEmailTemplate("expired", userCert);
             await strapi.plugins["email"].services.email.send({
               to: userCert.user.email,
+              bcc: "pas@ryzolve.com",
               subject: userEmail.subject,
               html: userEmail.html,
-            });
-
-            // Send expired notification to admin
-            const adminEmail = getAdminEmailTemplate("expired", userCert);
-            await strapi.plugins["email"].services.email.send({
-              to: "pas@ryzolve.com",
-              subject: adminEmail.subject,
-              html: adminEmail.html,
             });
           }
 
@@ -325,20 +260,13 @@ module.exports = createCoreService(
       for (const userCert of needsNotification) {
         try {
           if (userCert.user && userCert.course) {
-            // Send expired notification to user
+            // Send expired notification to user with BCC to admin
             const userEmail = getEmailTemplate("expired", userCert);
             await strapi.plugins["email"].services.email.send({
               to: userCert.user.email,
+              bcc: "pas@ryzolve.com",
               subject: userEmail.subject,
               html: userEmail.html,
-            });
-
-            // Send expired notification to admin
-            const adminEmail = getAdminEmailTemplate("expired", userCert);
-            await strapi.plugins["email"].services.email.send({
-              to: "pas@ryzolve.com",
-              subject: adminEmail.subject,
-              html: adminEmail.html,
             });
 
             // Mark notification as sent
