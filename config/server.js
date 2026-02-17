@@ -15,6 +15,16 @@ module.exports = ({ env }) => ({
           .service("api::user-certificate.user-certificate")
           .checkExpiringCertificates();
       },
+      // Daily incomplete course reminder at 4:00 PM CST
+      '0 16 * * *': {
+        task: async ({ strapi }) => {
+          strapi.log.info('[Cron] Running incomplete course reminder check');
+          await strapi.service('api::order.order').checkIncompleteCourses();
+        },
+        options: {
+          tz: 'America/Chicago',
+        },
+      },
     },
   },
 });

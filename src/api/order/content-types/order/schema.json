@@ -36,6 +36,10 @@
     },
     "stripeRandomNumber": {
       "type": "biginteger"
+    },
+    "remindersSent": {
+      "type": "json",
+      "default": []
     }
   }
 }
